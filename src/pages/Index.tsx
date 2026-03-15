@@ -464,7 +464,7 @@ const Index = () => {
                 ) : (
                   <div className="w-full">
                     <PatternOptions
-                      options={data.patterns[patternIndex].options}
+                      pattern={data.patterns[patternIndex]}
                       onSelect={handlePatternSelect}
                       selectedIndex={patternSelected}
                     />

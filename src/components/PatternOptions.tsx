@@ -1,34 +1,42 @@
-import Grid3x3 from "./Grid3x3";
+import { PatternItem } from "@/data/testData";
+import { PATTERN_IMAGES } from "@/lib/patternImages";
 
 interface PatternOptionsProps {
-  options: number[][];
+  pattern: PatternItem;
   onSelect: (index: number) => void;
-  selectedIndex?: number | null;
+  selectedIndex: number | null;
 }
 
-const PatternOptions = ({ options, onSelect, selectedIndex }: PatternOptionsProps) => {
-  const labels = ["A", "B", "C", "D"];
+const PatternOptions = ({ pattern, onSelect, selectedIndex }: PatternOptionsProps) => {
+  const imgSrc = PATTERN_IMAGES[pattern.image];
+
   return (
     <div className="flex flex-col items-center gap-6">
       <h2 className="text-xl font-bold uppercase tracking-tighter">
         SELECT YOUR ANSWER
       </h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        {options.map((opt, i) => (
+      <div className="bg-white p-4 border-2 border-foreground">
+        <img
+          src={imgSrc}
+          alt="Pattern with options"
+          className="max-w-full max-h-[350px] object-contain"
+        />
+      </div>
+      <div className="flex gap-3 flex-wrap justify-center">
+        {pattern.optionLabels.map((label, i) => (
           <button
             key={i}
             onClick={() => onSelect(i)}
-            disabled={selectedIndex !== undefined && selectedIndex !== null}
-            className={`flex flex-col items-center gap-2 p-3 border-2 transition-opacity ${
+            disabled={selectedIndex !== null}
+            className={`w-14 h-14 border-2 border-foreground font-bold text-xl transition-colors ${
               selectedIndex === i
-                ? "border-card-foreground bg-card-foreground/10"
-                : selectedIndex !== undefined && selectedIndex !== null
-                ? "border-muted opacity-40"
-                : "border-card-foreground hover:bg-card-foreground hover:text-card"
+                ? "bg-foreground text-background"
+                : selectedIndex !== null
+                ? "opacity-30"
+                : "bg-background text-foreground hover:bg-foreground hover:text-background"
             }`}
           >
-            <span className="font-bold text-lg">{labels[i]}</span>
-            <Grid3x3 activeIndices={opt} size="w-16 h-16" />
+            {label}
           </button>
         ))}
       </div>
