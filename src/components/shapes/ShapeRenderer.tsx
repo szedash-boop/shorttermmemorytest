@@ -172,7 +172,7 @@ interface ShapeRendererProps {
 }
 
 const ShapeRenderer = ({ testId, item }: ShapeRendererProps) => {
-  if (item === null) return <QuestionMark />;
+  if (item === null) return <QuestionMark isGrid={testId.includes("grid") && !testId.includes("arrow")} />;
   if (testId.includes("grid") && !testId.includes("arrow"))
     return <Grid3x3Shape cells={item as GridCells} />;
   if (testId.includes("arrows") && !testId.includes("arrow-grids"))
