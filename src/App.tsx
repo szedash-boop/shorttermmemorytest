@@ -6,9 +6,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import NotFound from "./pages/NotFound.tsx";
-import { HashRouter as Router } from 'react-router-dom';  // Change from BrowserRouter to HashRouter
-
-// ... rest of your code remains the same
 
 const queryClient = new QueryClient();
 
