@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { PRE_DATA, POST_DATA } from "@/data/testData";
+import { PRE_DATA, POST_DATA, MOD_CODE } from "@/data/testData";
 import { saveResult, hasCompleted, type ParticipantResult } from "@/lib/storage";
 
 import ProgressBar from "@/components/ProgressBar";
@@ -34,6 +34,11 @@ const Index = () => {
   const [phase, setPhase] = useState<Phase>("landing");
   const [nickname, setNickname] = useState("");
   const [error, setError] = useState("");
+
+  // Mod mode
+  const [modMode, setModMode] = useState(false);
+  const [modKeyInput, setModKeyInput] = useState("");
+  const [showModLogin, setShowModLogin] = useState(false);
 
   // Pattern state
   const [patternIndex, setPatternIndex] = useState(0);
@@ -84,6 +89,7 @@ const Index = () => {
   }, []);
 
   const startTimer = useCallback((seconds: number) => {
+    if (modMode) return; // No timers in mod mode
     setTimer(seconds);
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
@@ -95,7 +101,7 @@ const Index = () => {
         return t - 1;
       });
     }, 1000);
-  }, []);
+  }, [modMode]);
 
   const stopTimer = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -128,9 +134,16 @@ const Index = () => {
     }
   }, [phase]);
 
+  const goBackPhase = useCallback(() => {
+    const idx = PHASE_ORDER.indexOf(phase);
+    if (idx > 0) {
+      setPhase(PHASE_ORDER[idx - 1]);
+    }
+  }, [phase]);
+
   const autoSave = useCallback((updatedResults: ParticipantResult) => {
-    saveResult(updatedResults);
-  }, []);
+    if (!modMode) saveResult(updatedResults);
+  }, [modMode]);
 
   // Phase initialization
   useEffect(() => {
@@ -156,9 +169,11 @@ const Index = () => {
       startTimer(300);
     } else if (phase === "closing") {
       stopTimer();
-      const finalResult = { ...results, completed: true };
-      setResults(finalResult);
-      autoSave(finalResult);
+      if (!modMode) {
+        const finalResult = { ...results, completed: true };
+        setResults(finalResult);
+        autoSave(finalResult);
+      }
     }
   }, [phase]);
 
@@ -185,12 +200,12 @@ const Index = () => {
   useEffect(() => { wordSubPhaseRef.current = wordSubPhase; }, [wordSubPhase]);
   useEffect(() => { resultsRef.current = results; }, [results]);
 
-  // Timer-driven transitions
+  // Timer-driven transitions (disabled in mod mode)
   useEffect(() => {
+    if (modMode) return;
     if (timer !== 0) return;
     const p = phaseRef.current;
 
-    // Pattern: display phase ends → show answer for 10s
     if ((p === "pre-pattern" || p === "post-pattern") && patternSubPhaseRef.current === "display") {
       setPatternSubPhase("answer");
       setPatternSelected(null);
@@ -198,13 +213,11 @@ const Index = () => {
       return;
     }
 
-    // Pattern: answer phase ends → record answer & advance
     if ((p === "pre-pattern" || p === "post-pattern") && patternSubPhaseRef.current === "answer") {
       commitPatternAnswer();
       return;
     }
 
-    // Digit: display phase ends → show answer for 10s
     if ((p === "pre-digit" || p === "post-digit") && digitSubPhaseRef.current === "display") {
       setDigitSubPhase("answer");
       setDigitInput("");
@@ -213,32 +226,28 @@ const Index = () => {
       return;
     }
 
-    // Digit: answer phase ends → record answer & advance
     if ((p === "pre-digit" || p === "post-digit") && digitSubPhaseRef.current === "answer") {
       commitDigitAnswer();
       return;
     }
 
-    // Word: display → recall
     if ((p === "pre-word" || p === "post-word") && wordSubPhaseRef.current === "display") {
       setWordSubPhase("recall");
       startTimer(90);
       return;
     }
 
-    // Word: recall ends
     if ((p === "pre-word" || p === "post-word") && wordSubPhaseRef.current === "recall") {
       handleWordSubmit();
       return;
     }
-  }, [timer]);
+  }, [timer, modMode]);
 
-  // Commit pattern answer (called when 10s answer timer expires)
   const commitPatternAnswer = () => {
     const p = phaseRef.current;
     const key = p === "pre-pattern" ? "prePatterns" : "postPatterns";
     const selected = patternSelectedRef.current;
-    const answer = selected !== null ? selected : -1; // -1 = no answer
+    const answer = selected !== null ? selected : -1;
     const currentResults = resultsRef.current;
     const newAnswers = [...currentResults.sections[key].answers, answer];
     const data = p.startsWith("pre") ? PRE_DATA : POST_DATA;
@@ -273,7 +282,6 @@ const Index = () => {
     }
   };
 
-  // Commit digit answer (called when 10s answer timer expires)
   const commitDigitAnswer = () => {
     const p = phaseRef.current;
     const key = p === "pre-digit" ? "preDigits" : "postDigits";
@@ -291,7 +299,6 @@ const Index = () => {
     };
 
     if (digitIndexRef.current < data.digits.length - 1) {
-      // Check section time cap (90s)
       const elapsed = (Date.now() - sectionStartRef.current) / 1000;
       if (elapsed >= 90) {
         const finalResults = {
@@ -331,6 +338,10 @@ const Index = () => {
   };
 
   const handleStart = () => {
+    if (modMode) {
+      setPhase("pre-pattern");
+      return;
+    }
     if (!nickname.trim()) {
       setError("Please enter a nickname.");
       return;
@@ -350,6 +361,17 @@ const Index = () => {
     setPhase("pre-pattern");
   };
 
+  const handleModLogin = () => {
+    if (modKeyInput.trim() === MOD_CODE) {
+      setModMode(true);
+      setShowModLogin(false);
+      setModKeyInput("");
+      setError("");
+    } else {
+      setError("Invalid moderator code.");
+    }
+  };
+
   const handlePatternSelect = (optionIndex: number) => {
     if (patternSelected === null) {
       setPatternSelected(optionIndex);
@@ -363,7 +385,6 @@ const Index = () => {
   };
 
   const handleDigitEarlySubmit = () => {
-    // Lock the input but don't advance — wait for timer
     setDigitSubmitted(true);
   };
 
@@ -393,11 +414,65 @@ const Index = () => {
     return (idx / (PHASE_ORDER.length - 1)) * 100;
   };
 
+  // Mod mode: toggle sub-phases within a section
+  const modToggleSubPhase = () => {
+    if (phase === "pre-pattern" || phase === "post-pattern") {
+      setPatternSubPhase((s) => (s === "display" ? "answer" : "display"));
+    } else if (phase === "pre-digit" || phase === "post-digit") {
+      setDigitSubPhase((s) => (s === "display" ? "answer" : "display"));
+    } else if (phase === "pre-word" || phase === "post-word") {
+      setWordSubPhase((s) => (s === "display" ? "recall" : "display"));
+    }
+  };
+
+  const modNextItem = () => {
+    const data = getData();
+    if (phase === "pre-pattern" || phase === "post-pattern") {
+      if (patternIndex < data.patterns.length - 1) {
+        setPatternIndex((i) => i + 1);
+        setPatternSubPhase("display");
+        setPatternSelected(null);
+      }
+    } else if (phase === "pre-digit" || phase === "post-digit") {
+      if (digitIndex < data.digits.length - 1) {
+        setDigitIndex((i) => i + 1);
+        setDigitSubPhase("display");
+        setDigitInput("");
+        setDigitSubmitted(false);
+      }
+    }
+  };
+
+  const modPrevItem = () => {
+    if (phase === "pre-pattern" || phase === "post-pattern") {
+      if (patternIndex > 0) {
+        setPatternIndex((i) => i - 1);
+        setPatternSubPhase("display");
+        setPatternSelected(null);
+      }
+    } else if (phase === "pre-digit" || phase === "post-digit") {
+      if (digitIndex > 0) {
+        setDigitIndex((i) => i - 1);
+        setDigitSubPhase("display");
+        setDigitInput("");
+        setDigitSubmitted(false);
+      }
+    }
+  };
+
   const data = getData();
 
   return (
     <div className="min-h-screen text-foreground font-sans flex items-center justify-center p-4 bg-primary">
-      <div className="w-full max-w-3xl bg-card text-card-foreground p-8 md:p-12 border-2 border-foreground">
+      <div className="w-full max-w-3xl bg-card text-card-foreground p-8 md:p-12 border-2 border-foreground relative">
+
+        {/* Mod mode banner */}
+        {modMode && (
+          <div className="absolute top-0 left-0 right-0 bg-foreground text-background text-center py-1 text-xs font-mono tracking-widest uppercase">
+            ◆ MOD MODE ◆
+          </div>
+        )}
+
         {/* LANDING */}
         {phase === "landing" && (
           <div className="space-y-8">
@@ -415,17 +490,21 @@ const Index = () => {
               you are in a quiet environment to minimize distractions. Good luck!
             </p>
             <div className="space-y-4">
-              <label className="block uppercase font-bold text-sm tracking-widest">
-                Participant Nickname
-              </label>
-              <input
-                type="text"
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleStart()}
-                className="w-full border-2 border-card-foreground p-4 text-xl bg-card text-card-foreground focus:outline-none focus:bg-card-foreground focus:text-card transition-colors placeholder:text-muted-foreground"
-                placeholder="ENTER ALIAS..."
-              />
+              {!modMode && (
+                <>
+                  <label className="block uppercase font-bold text-sm tracking-widest">
+                    Participant Nickname
+                  </label>
+                  <input
+                    type="text"
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleStart()}
+                    className="w-full border-2 border-card-foreground p-4 text-xl bg-card text-card-foreground focus:outline-none focus:bg-card-foreground focus:text-card transition-colors placeholder:text-muted-foreground"
+                    placeholder="ENTER ALIAS..."
+                  />
+                </>
+              )}
               {error && (
                 <p className="text-card-foreground font-bold border-2 border-card-foreground p-3 bg-accent text-accent-foreground">
                   ⚠ {error}
@@ -433,23 +512,66 @@ const Index = () => {
               )}
               <button
                 onClick={handleStart}
-                disabled={!nickname.trim()}
+                disabled={!modMode && !nickname.trim()}
                 className="w-full bg-card-foreground text-card p-6 text-xl font-bold hover:opacity-80 disabled:opacity-30 transition-opacity flex items-center justify-center gap-2"
               >
-                BEGIN TEST →
+                {modMode ? "BROWSE TEST (MOD) →" : "BEGIN TEST →"}
               </button>
+
+              {/* Mod mode toggle */}
+              {!modMode && !showModLogin && (
+                <button
+                  onClick={() => { setShowModLogin(true); setError(""); }}
+                  className="w-full text-muted-foreground text-xs font-mono hover:text-foreground transition-colors py-2"
+                >
+                  MODERATOR ACCESS
+                </button>
+              )}
+              {showModLogin && !modMode && (
+                <div className="flex gap-2">
+                  <input
+                    type="password"
+                    value={modKeyInput}
+                    onChange={(e) => setModKeyInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleModLogin()}
+                    className="flex-1 border-2 border-card-foreground p-3 font-mono bg-card text-card-foreground focus:outline-none placeholder:text-muted-foreground"
+                    placeholder="ENTER MOD CODE..."
+                    autoFocus
+                  />
+                  <button
+                    onClick={handleModLogin}
+                    className="bg-card-foreground text-card px-6 font-bold hover:opacity-80 transition-opacity"
+                  >
+                    →
+                  </button>
+                  <button
+                    onClick={() => { setShowModLogin(false); setModKeyInput(""); setError(""); }}
+                    className="border-2 border-card-foreground px-4 font-bold hover:bg-card-foreground hover:text-card transition-colors"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+              {modMode && (
+                <button
+                  onClick={() => setModMode(false)}
+                  className="w-full border-2 border-card-foreground p-3 font-mono text-sm hover:bg-card-foreground hover:text-card transition-colors"
+                >
+                  EXIT MOD MODE
+                </button>
+              )}
             </div>
           </div>
         )}
 
         {/* TEST PHASES */}
         {phase !== "landing" && phase !== "closing" && (
-          <div className="min-h-[400px] flex flex-col">
+          <div className={`min-h-[400px] flex flex-col ${modMode ? "pt-6" : ""}`}>
             <div className="flex justify-between items-end mb-4">
               <span className="font-bold uppercase tracking-tighter text-sm">
                 {phase.replace("-", " ").toUpperCase()}
               </span>
-              <Timer seconds={timer} />
+              {!modMode && <Timer seconds={timer} />}
             </div>
             <ProgressBar progress={getProgress()} />
 
@@ -468,7 +590,7 @@ const Index = () => {
                       onSelect={handlePatternSelect}
                       selectedIndex={patternSelected}
                     />
-                    {patternSelected !== null && (
+                    {patternSelected !== null && !modMode && (
                       <p className="text-center text-sm text-muted-foreground mt-4 font-mono">
                         ANSWER LOCKED — WAITING FOR TIMER...
                       </p>
@@ -508,7 +630,7 @@ const Index = () => {
                       className="w-full border-2 border-card-foreground p-4 text-3xl font-mono text-center bg-card text-card-foreground focus:outline-none tabular-nums tracking-[0.3em] disabled:opacity-50"
                       placeholder="..."
                     />
-                    {digitSubmitted && (
+                    {digitSubmitted && !modMode && (
                       <p className="text-center text-sm text-muted-foreground font-mono">
                         ANSWER LOCKED — WAITING FOR TIMER...
                       </p>
@@ -570,11 +692,13 @@ const Index = () => {
                   You are given a 5-minute break. Please wait for further verbal
                   instructions from the testers. Thank you!
                 </p>
-                <div className="text-7xl md:text-8xl font-mono font-bold tabular-nums">
-                  {Math.floor(timer / 60)}:
-                  {(timer % 60).toString().padStart(2, "0")}
-                </div>
-                {timer === 0 && (
+                {!modMode && (
+                  <div className="text-7xl md:text-8xl font-mono font-bold tabular-nums">
+                    {Math.floor(timer / 60)}:
+                    {(timer % 60).toString().padStart(2, "0")}
+                  </div>
+                )}
+                {(timer === 0 || modMode) && (
                   <button
                     onClick={advancePhase}
                     className="bg-card-foreground text-card px-12 py-4 font-bold text-xl hover:opacity-80 transition-opacity"
@@ -584,12 +708,60 @@ const Index = () => {
                 )}
               </div>
             )}
+
+            {/* MOD CONTROLS */}
+            {modMode && (
+              <div className="mt-6 pt-4 border-t-2 border-muted-foreground flex flex-wrap items-center justify-center gap-3">
+                <button
+                  onClick={goBackPhase}
+                  disabled={PHASE_ORDER.indexOf(phase) <= 1}
+                  className="border-2 border-card-foreground px-4 py-2 font-bold text-sm hover:bg-card-foreground hover:text-card transition-colors disabled:opacity-30"
+                >
+                  ← PREV SECTION
+                </button>
+                {(phase.includes("pattern") || phase.includes("digit")) && (
+                  <>
+                    <button
+                      onClick={modPrevItem}
+                      className="border-2 border-card-foreground px-3 py-2 font-bold text-sm hover:bg-card-foreground hover:text-card transition-colors"
+                    >
+                      ‹ ITEM
+                    </button>
+                    <button
+                      onClick={modNextItem}
+                      className="border-2 border-card-foreground px-3 py-2 font-bold text-sm hover:bg-card-foreground hover:text-card transition-colors"
+                    >
+                      ITEM ›
+                    </button>
+                  </>
+                )}
+                <button
+                  onClick={modToggleSubPhase}
+                  className="border-2 border-card-foreground px-4 py-2 font-bold text-sm hover:bg-card-foreground hover:text-card transition-colors"
+                >
+                  TOGGLE VIEW
+                </button>
+                <button
+                  onClick={advancePhase}
+                  disabled={PHASE_ORDER.indexOf(phase) >= PHASE_ORDER.length - 1}
+                  className="border-2 border-card-foreground px-4 py-2 font-bold text-sm hover:bg-card-foreground hover:text-card transition-colors disabled:opacity-30"
+                >
+                  NEXT SECTION →
+                </button>
+                <button
+                  onClick={() => { setModMode(false); setPhase("landing"); stopTimer(); }}
+                  className="border-2 border-muted-foreground text-muted-foreground px-4 py-2 font-bold text-xs hover:bg-card-foreground hover:text-card transition-colors"
+                >
+                  EXIT
+                </button>
+              </div>
+            )}
           </div>
         )}
 
         {/* CLOSING */}
         {phase === "closing" && (
-          <div className="text-center space-y-8 py-8">
+          <div className={`text-center space-y-8 py-8 ${modMode ? "pt-12" : ""}`}>
             <div className="text-6xl mb-4">✓</div>
             <h1 className="text-3xl md:text-4xl font-bold tracking-tighter uppercase">
               Test Complete
@@ -600,10 +772,27 @@ const Index = () => {
               turn back to the Zoom meeting for some closing remarks and
               announcements from the testers.
             </p>
-            <div className="pt-8 border-t border-muted text-sm font-mono text-muted-foreground">
-              SESSION_ID:{" "}
-              {Math.random().toString(36).substr(2, 9).toUpperCase()}
-            </div>
+            {modMode ? (
+              <div className="flex justify-center gap-4 pt-4">
+                <button
+                  onClick={goBackPhase}
+                  className="border-2 border-card-foreground px-6 py-3 font-bold hover:bg-card-foreground hover:text-card transition-colors"
+                >
+                  ← BACK
+                </button>
+                <button
+                  onClick={() => { setModMode(false); setPhase("landing"); }}
+                  className="bg-card-foreground text-card px-6 py-3 font-bold hover:opacity-80 transition-opacity"
+                >
+                  EXIT MOD MODE
+                </button>
+              </div>
+            ) : (
+              <div className="pt-8 border-t border-muted text-sm font-mono text-muted-foreground">
+                SESSION_ID:{" "}
+                {Math.random().toString(36).substr(2, 9).toUpperCase()}
+              </div>
+            )}
           </div>
         )}
       </div>
