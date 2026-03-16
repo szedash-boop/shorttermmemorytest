@@ -8,14 +8,14 @@ import type {
   MultiArrowItem,
 } from "@/data/testData";
 
-// --- Grid 3x3 ---
+// --- Grid 3x3 (FIXED: Explicitly checks for 1) ---
 const Grid3x3Shape = ({ cells }: { cells: GridCells }) => (
   <div className="grid grid-cols-3 w-24 h-24 border-2 border-foreground">
-    {cells.map((filled, i) => (
+    {cells.map((val, i) => (
       <div
         key={i}
         className={`border border-muted-foreground ${
-          filled ? "bg-foreground" : "bg-card"
+          val === 1 ? "bg-foreground" : "bg-card"
         }`}
       />
     ))}
@@ -50,33 +50,13 @@ const SplitTriangle = ({ invert, leftFilled, rightFilled }: TriangleShape) => (
   <svg viewBox="0 0 100 100" className="w-16 h-16 border border-foreground p-2">
     {invert ? (
       <>
-        <polygon
-          points="0,0 50,100 50,0"
-          fill={leftFilled ? "currentColor" : "none"}
-          stroke="currentColor"
-          strokeWidth="4"
-        />
-        <polygon
-          points="100,0 50,100 50,0"
-          fill={rightFilled ? "currentColor" : "none"}
-          stroke="currentColor"
-          strokeWidth="4"
-        />
+        <polygon points="0,0 50,100 50,0" fill={leftFilled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="4" />
+        <polygon points="100,0 50,100 50,0" fill={rightFilled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="4" />
       </>
     ) : (
       <>
-        <polygon
-          points="0,100 50,0 50,100"
-          fill={leftFilled ? "currentColor" : "none"}
-          stroke="currentColor"
-          strokeWidth="4"
-        />
-        <polygon
-          points="100,100 50,0 50,100"
-          fill={rightFilled ? "currentColor" : "none"}
-          stroke="currentColor"
-          strokeWidth="4"
-        />
+        <polygon points="0,100 50,0 50,100" fill={leftFilled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="4" />
+        <polygon points="100,100 50,0 50,100" fill={rightFilled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="4" />
       </>
     )}
   </svg>
@@ -101,29 +81,17 @@ const Petals = ({ count, isTopMinus }: PetalShape) => {
   for (let i = 0; i < count; i++) {
     petalElements.push(
       <ellipse
-        key={i}
-        cx="50"
-        cy="25"
-        rx="10"
-        ry="24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="4"
+        key={i} cx="50" cy="25" rx="10" ry="24"
+        fill="none" stroke="currentColor" strokeWidth="4"
         transform={`rotate(${angles[i]} 50 50)`}
       />
     );
   }
   return (
     <div className="w-20 h-20 border-2 border-foreground relative bg-card flex items-center justify-center">
-      <span className="absolute top-0 left-1.5 font-bold text-lg text-foreground">
-        {isTopMinus ? "−" : "+"}
-      </span>
-      <span className="absolute bottom-0 right-1.5 font-bold text-lg text-foreground">
-        {isTopMinus ? "+" : "−"}
-      </span>
-      <svg viewBox="0 0 100 100" className="w-12 h-12">
-        {petalElements}
-      </svg>
+      <span className="absolute top-0 left-1.5 font-bold text-lg text-foreground">{isTopMinus ? "−" : "+"}</span>
+      <span className="absolute bottom-0 right-1.5 font-bold text-lg text-foreground">{isTopMinus ? "+" : "−"}</span>
+      <svg viewBox="0 0 100 100" className="w-12 h-12">{petalElements}</svg>
     </div>
   );
 };
@@ -142,14 +110,8 @@ const MultiArrowCell = ({ arrows }: { arrows: MultiArrowItem[] }) => {
     <div className="w-20 h-20 border border-foreground flex items-end justify-center gap-1 bg-card p-2">
       {arrows.map((arr, i) => (
         <svg
-          key={i}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="3"
-          className={`text-foreground origin-center ${
-            arr.size === "lg" ? "w-8 h-14" : "w-5 h-8"
-          } ${getRotation(arr.dir)}`}
+          key={i} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"
+          className={`text-foreground origin-center ${arr.size === "lg" ? "w-8 h-14" : "w-5 h-8"} ${getRotation(arr.dir)}`}
         >
           <path d="M12 21V3M5 10l7-7 7 7" />
         </svg>
@@ -173,6 +135,8 @@ interface ShapeRendererProps {
 
 const ShapeRenderer = ({ testId, item }: ShapeRendererProps) => {
   if (item === null) return <QuestionMark isGrid={testId.includes("grid") && !testId.includes("arrow")} />;
+  
+  // Note the explicit cast or checking for the grid-based IDs
   if (testId.includes("grid") && !testId.includes("arrow"))
     return <Grid3x3Shape cells={item as GridCells} />;
   if (testId.includes("arrows") && !testId.includes("arrow-grids"))
@@ -185,6 +149,7 @@ const ShapeRenderer = ({ testId, item }: ShapeRendererProps) => {
     return <Petals {...(item as PetalShape)} />;
   if (testId.includes("arrow-grids"))
     return <MultiArrowCell arrows={item as MultiArrowItem[]} />;
+    
   return null;
 };
 
