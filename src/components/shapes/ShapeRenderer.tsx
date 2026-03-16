@@ -10,11 +10,11 @@ import type {
 
 // --- Grid 3x3 ---
 const Grid3x3Shape = ({ cells }: { cells: GridCells }) => (
-  <div className="grid grid-cols-3 w-16 h-16 border-t border-l border-muted-foreground">
+  <div className="grid grid-cols-3 w-24 h-24 border-2 border-foreground">
     {cells.map((filled, i) => (
       <div
         key={i}
-        className={`border-b border-r border-muted-foreground ${
+        className={`border border-muted-foreground ${
           filled ? "bg-foreground" : "bg-card"
         }`}
       />
@@ -159,8 +159,8 @@ const MultiArrowCell = ({ arrows }: { arrows: MultiArrowItem[] }) => {
 };
 
 // --- Question Mark ---
-const QuestionMark = () => (
-  <div className="w-16 h-16 flex items-center justify-center border border-transparent">
+const QuestionMark = ({ isGrid = false }: { isGrid?: boolean }) => (
+  <div className={`${isGrid ? "w-24 h-24" : "w-16 h-16"} flex items-center justify-center border-2 border-dashed border-muted-foreground`}>
     <span className="text-4xl font-bold text-foreground">?</span>
   </div>
 );
@@ -172,7 +172,7 @@ interface ShapeRendererProps {
 }
 
 const ShapeRenderer = ({ testId, item }: ShapeRendererProps) => {
-  if (item === null) return <QuestionMark />;
+  if (item === null) return <QuestionMark isGrid={testId.includes("grid") && !testId.includes("arrow")} />;
   if (testId.includes("grid") && !testId.includes("arrow"))
     return <Grid3x3Shape cells={item as GridCells} />;
   if (testId.includes("arrows") && !testId.includes("arrow-grids"))
