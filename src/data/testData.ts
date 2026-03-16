@@ -1,8 +1,6 @@
-// All test items are FIXED and identical for every participant.
+// --- Shape types ---
 
-// --- Shape types for SVG pattern tests ---
-
-export type GridCells = number[]; // 9 values (0 or 1) for 3x3 grid
+export type GridCells = number[]; // 9 values (0 or 1)
 export type ArrowDir = "up" | "right" | "down" | "left";
 export interface TriangleShape { invert: boolean; leftFilled: boolean; rightFilled: boolean; }
 export interface CrosshairShape { vOffset: number; hOffset: number; }
@@ -17,7 +15,7 @@ export interface PatternItem {
   pattern: ShapeItem[];
   options: ShapeItem[];
   optionLabels: string[];
-  correct: number; // 0-based index into options
+  correct: number; 
 }
 
 export interface TestData {
@@ -26,35 +24,33 @@ export interface TestData {
   words: string[];
 }
 
-// PRE-BREAK test data
+// --- Data Definitions ---
+
 export const PRE_DATA: TestData = {
   patterns: [
-    // Test 1: 3x3 Grid patterns (3x3 grid of items, last is "?")
     {
       id: "test-1-grid",
       layout: "grid3x3",
       pattern: [
-        [1,0,0, 0,0,0, 0,0,0], [0,1,1, 0,0,0, 0,0,0], [0,0,1, 0,1,0, 0,0,0],
-        [0,0,0, 1,0,0, 1,0,0], [0,0,0, 0,1,0, 0,0,1], [0,1,0, 0,0,1, 0,0,0],
-        [0,0,0, 1,0,0, 1,0,0], [0,0,0, 0,0,1, 0,1,0], null,
+        [1,0,0,0,0,0,0,0,0], [0,1,1,0,0,0,0,0,0], [0,0,1,0,1,0,0,0,0],
+        [0,0,0,1,0,0,1,0,0], [0,0,0,0,1,0,0,0,1], [0,1,0,0,0,1,0,0,0],
+        [0,0,0,1,0,0,1,0,0], [0,0,0,0,0,1,0,1,0], null
       ],
       options: [
-        [0,0,0, 0,0,1, 1,0,0], [0,0,0, 1,0,0, 0,0,1], [0,0,0, 0,0,0, 0,1,0],
-        [0,0,0, 0,0,0, 0,1,1], [0,0,0, 0,0,0, 1,1,1], [0,0,0, 0,0,0, 1,0,1],
+        [0,0,0,0,0,1,1,0,0], [0,0,0,1,0,0,0,0,1], [0,0,0,0,0,0,0,1,0],
+        [0,0,0,0,0,0,0,1,1], [0,0,0,0,0,0,1,1,1], [0,0,0,0,0,0,1,0,1]
       ],
       optionLabels: ["A", "B", "C", "D", "E", "F"],
-      correct: 1, // B
+      correct: 1,
     },
-    // Test 2: Directional arrows sequence
     {
       id: "test-2-arrows",
       layout: "sequence",
       pattern: ["down", "left", "up", "right", "down", null],
       options: ["right", "up", "down", "left", "left"],
       optionLabels: ["A", "B", "C", "D", "E"],
-      correct: 0, // A
+      correct: 0,
     },
-    // Test 5: Split triangles sequence
     {
       id: "test-5-triangles",
       layout: "sequence",
@@ -63,71 +59,54 @@ export const PRE_DATA: TestData = {
         { invert: true, leftFilled: true, rightFilled: false },
         { invert: false, leftFilled: true, rightFilled: false },
         { invert: true, leftFilled: true, rightFilled: false },
-        null,
+        null
       ],
       options: [
         { invert: false, leftFilled: true, rightFilled: true },
         { invert: false, leftFilled: true, rightFilled: false },
         { invert: false, leftFilled: false, rightFilled: true },
-        { invert: false, leftFilled: false, rightFilled: false },
+        { invert: false, leftFilled: false, rightFilled: false }
       ],
       optionLabels: ["A", "B", "C", "D"],
-      correct: 1, // B
+      correct: 1,
     },
   ],
   digits: ["482", "9173", "52084", "391627", "8402935", "17395826", "402851739", "5820491736"],
-  words: [
-    "OAK", "BOTTLE", "CLOUD", "HAMMER",
-    "RIVER", "CHAIR", "GLASS", "WATCH",
-    "BREAD", "JACKET", "PILLOW", "PHONE",
-    "GARDEN", "SCHOOL", "WINDOW", "TIGER",
-  ],
+  words: ["OAK", "BOTTLE", "CLOUD", "HAMMER", "RIVER", "CHAIR", "GLASS", "WATCH", "BREAD", "JACKET", "PILLOW", "PHONE", "GARDEN", "SCHOOL", "WINDOW", "TIGER"],
 };
 
-// POST-BREAK test data (completely different items)
 export const POST_DATA: TestData = {
   patterns: [
-    // Test 3: Crosshairs sequence
     {
       id: "test-3-crosshairs",
       layout: "sequence",
       pattern: [
-        { vOffset: -10, hOffset: 0 },
-        { vOffset: -5, hOffset: 0 },
-        { vOffset: 0, hOffset: 0 },
-        { vOffset: 5, hOffset: 0 },
-        null,
+        { vOffset: -10, hOffset: 0 }, { vOffset: -5, hOffset: 0 },
+        { vOffset: 0, hOffset: 0 }, { vOffset: 5, hOffset: 0 },
+        null
       ],
       options: [
-        { vOffset: 10, hOffset: 0 },
-        { vOffset: 0, hOffset: 5 },
-        { vOffset: 0, hOffset: 10 },
-        { vOffset: 0, hOffset: -10 },
+        { vOffset: 10, hOffset: 0 }, { vOffset: 0, hOffset: 5 },
+        { vOffset: 0, hOffset: 10 }, { vOffset: 0, hOffset: -10 }
       ],
       optionLabels: ["A", "B", "C", "D"],
-      correct: 0, // A
+      correct: 0,
     },
-    // Test 4: Petals sequence
     {
       id: "test-4-petals",
       layout: "sequence",
       pattern: [
-        { count: 1, isTopMinus: true },
-        { count: 2, isTopMinus: false },
-        { count: 3, isTopMinus: true },
-        { count: 4, isTopMinus: false },
-        null,
+        { count: 1, isTopMinus: true }, { count: 2, isTopMinus: false },
+        { count: 3, isTopMinus: true }, { count: 4, isTopMinus: false },
+        null
       ],
       options: [
-        { count: 5, isTopMinus: false },
-        { count: 5, isTopMinus: true },
-        { count: 4, isTopMinus: true },
-        { count: 3, isTopMinus: false },
+        { count: 5, isTopMinus: false }, { count: 5, isTopMinus: true },
+        { count: 4, isTopMinus: true }, { count: 3, isTopMinus: false }
       ],
       optionLabels: ["A", "B", "C", "D"],
-      correct: 1, // B
+      correct: 1,
     },
-    // Test 6: Multi-arrow grid (2x2 layout)
     {
       id: "test-6-arrow-grids",
       layout: "grid2x2",
@@ -135,25 +114,20 @@ export const POST_DATA: TestData = {
         [{ size: "lg", dir: "up" }],
         [{ size: "lg", dir: "up" }, { size: "sm", dir: "up" }],
         [{ size: "lg", dir: "up" }, { size: "lg", dir: "up" }],
-        null,
+        null
       ],
       options: [
         [{ size: "lg", dir: "right" }],
         [{ size: "lg", dir: "up" }, { size: "lg", dir: "up" }, { size: "sm", dir: "up" }, { size: "sm", dir: "up" }],
         [{ size: "lg", dir: "up" }, { size: "lg", dir: "right" }],
-        [{ size: "lg", dir: "up" }, { size: "lg", dir: "up" }, { size: "sm", dir: "up" }],
+        [{ size: "lg", dir: "up" }, { size: "lg", dir: "up" }, { size: "sm", dir: "up" }]
       ],
       optionLabels: ["A", "B", "C", "D"],
-      correct: 3, // D
+      correct: 3,
     },
   ],
   digits: ["371", "8264", "19305", "748291", "2058374", "91620483", "573918264", "8204719365"],
-  words: [
-    "MAPLE", "CUP", "STORM", "WRENCH",
-    "OCEAN", "DESK", "PLATE", "CLOCK",
-    "FRUIT", "SHIRT", "BLANKET", "RADIO",
-    "FOREST", "COLLEGE", "DOOR", "LION",
-  ],
+  words: ["MAPLE", "CUP", "STORM", "WRENCH", "OCEAN", "DESK", "PLATE", "CLOCK", "FRUIT", "SHIRT", "BLANKET", "RADIO", "FOREST", "COLLEGE", "DOOR", "LION"],
 };
 
 export const MOD_CODE = "PSYCH2026";
