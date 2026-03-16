@@ -26,6 +26,22 @@ export interface TestData {
 
 // --- Data Definitions ---
 
+// components/Grid3x3.jsx
+export const Grid3x3 = ({ cells }) => {
+  return (
+    <div className="grid grid-cols-3 w-24 h-24 border-2 border-gray-800 bg-white">
+      {cells.map((cellValue, i) => (
+        <div 
+          key={i} 
+          className={`border border-gray-300 ${
+            cellValue === 1 ? 'bg-black' : 'bg-white'
+          }`} 
+        />
+      ))}
+    </div>
+  );
+};
+
 export const PRE_DATA: TestData = {
   patterns: [
     {
