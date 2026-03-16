@@ -35,11 +35,14 @@ const Dashboard = () => {
 
   const patternCorrectMap = (answers: number[], phase: "pre" | "post") => {
     const data = phase === "pre" ? PRE_DATA : POST_DATA;
-    return answers.map((a, i) => ({
-      selected: a === -1 ? "—" : String.fromCharCode(65 + a),
-      correct: data.patterns[i] ? String.fromCharCode(65 + data.patterns[i].correct) : "?",
-      isCorrect: data.patterns[i] ? a === data.patterns[i].correct : false,
-    }));
+    return answers.map((a, i) => {
+      const p = data.patterns[i];
+      return {
+        selected: a === -1 ? "—" : (p ? p.optionLabels[a] ?? String.fromCharCode(65 + a) : String.fromCharCode(65 + a)),
+        correct: p ? p.optionLabels[p.correct] ?? String.fromCharCode(65 + p.correct) : "?",
+        isCorrect: p ? a === p.correct : false,
+      };
+    });
   };
 
   const scoreDigitSpan = (answers: string[], phase: "pre" | "post") => {

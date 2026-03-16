@@ -1,24 +1,27 @@
 import { PatternItem } from "@/data/testData";
-import { PATTERN_IMAGES } from "@/lib/patternImages";
+import ShapeRenderer from "@/components/shapes/ShapeRenderer";
 
 interface PatternDisplayProps {
   pattern: PatternItem;
 }
 
 const PatternDisplay = ({ pattern }: PatternDisplayProps) => {
-  const imgSrc = PATTERN_IMAGES[pattern.image];
+  const layoutClass =
+    pattern.layout === "grid3x3"
+      ? "grid grid-cols-3 gap-2"
+      : pattern.layout === "grid2x2"
+      ? "grid grid-cols-2 gap-2"
+      : "flex gap-4 flex-wrap justify-center";
 
   return (
     <div className="flex flex-col items-center gap-6">
       <h2 className="text-xl font-bold uppercase tracking-tighter">
         STUDY THE PATTERN
       </h2>
-      <div className="bg-white p-4 border-2 border-foreground">
-        <img
-          src={imgSrc}
-          alt="Pattern sequence"
-          className="max-w-full max-h-[400px] object-contain"
-        />
+      <div className={`bg-card p-6 border-2 border-foreground ${layoutClass}`}>
+        {pattern.pattern.map((item, i) => (
+          <ShapeRenderer key={i} testId={pattern.id} item={item} />
+        ))}
       </div>
     </div>
   );

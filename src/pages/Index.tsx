@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { PRE_DATA, POST_DATA } from "@/data/testData";
 import { saveResult, hasCompleted, type ParticipantResult } from "@/lib/storage";
-import Grid3x3 from "@/components/Grid3x3";
+
 import ProgressBar from "@/components/ProgressBar";
 import Timer from "@/components/Timer";
 import PatternDisplay from "@/components/PatternDisplay";
