@@ -159,8 +159,8 @@ const MultiArrowCell = ({ arrows }: { arrows: MultiArrowItem[] }) => {
 };
 
 // --- Question Mark ---
-const QuestionMark = () => (
-  <div className="w-16 h-16 flex items-center justify-center border border-transparent">
+const QuestionMark = ({ isGrid = false }: { isGrid?: boolean }) => (
+  <div className={`${isGrid ? "w-24 h-24" : "w-16 h-16"} flex items-center justify-center border-2 border-dashed border-muted-foreground`}>
     <span className="text-4xl font-bold text-foreground">?</span>
   </div>
 );
