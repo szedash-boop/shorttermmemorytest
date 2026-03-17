@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { PRE_DATA, POST_DATA, MOD_CODE } from "@/data/testData";
+import { PRE_DATA, POST_DATA, MOD_CODE, PARTICIPANT_CODE } from "@/data/testData";
 import { saveResult, hasCompleted, type ParticipantResult } from "@/lib/storage";
 
 import ProgressBar from "@/components/ProgressBar";
