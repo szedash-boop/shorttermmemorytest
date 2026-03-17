@@ -693,7 +693,7 @@ const Index = () => {
                   instructions from the testers. Thank you!
                 </p>
                 {!modMode && (
-                  <div className="text-7xl md:text-8xl font-mono font-bold tabular-nums">
+                  <div className="text-5xl sm:text-7xl md:text-8xl font-mono font-bold tabular-nums">
                     {Math.floor(timer / 60)}:
                     {(timer % 60).toString().padStart(2, "0")}
                   </div>

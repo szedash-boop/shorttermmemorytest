@@ -18,7 +18,7 @@ const PatternDisplay = ({ pattern }: PatternDisplayProps) => {
       <h2 className="text-xl font-bold uppercase tracking-tighter">
         STUDY THE PATTERN
       </h2>
-      <div className={`bg-card p-6 border-2 border-foreground ${layoutClass}`}>
+      <div className={`bg-card p-3 sm:p-6 border-2 border-foreground ${layoutClass}`}>
         {pattern.pattern.map((item, i) => (
           <ShapeRenderer key={i} testId={pattern.id} item={item} />
         ))}
