@@ -377,6 +377,7 @@ const Index = () => {
   const handleModLogin = () => {
     if (modKeyInput.trim() === MOD_CODE) {
       setModMode(true);
+      setAccessGranted(true);
       setShowModLogin(false);
       setModKeyInput("");
       setError("");
