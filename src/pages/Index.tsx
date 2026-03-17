@@ -32,6 +32,8 @@ const PHASE_ORDER: Phase[] = [
 
 const Index = () => {
   const [phase, setPhase] = useState<Phase>("landing");
+  const [accessGranted, setAccessGranted] = useState(false);
+  const [accessCode, setAccessCode] = useState("");
   const [nickname, setNickname] = useState("");
   const [error, setError] = useState("");
 
