@@ -486,8 +486,85 @@ const Index = () => {
           </div>
         )}
 
-        {/* LANDING */}
-        {phase === "landing" && (
+        {/* ACCESS CODE GATE */}
+        {phase === "landing" && !accessGranted && !modMode && (
+          <div className="space-y-8">
+            <div className="border-b-4 border-card-foreground pb-4">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tighter uppercase">
+                Short-Term Memory Lab
+              </h1>
+              <p className="mt-2 text-muted-foreground font-mono text-sm">
+                STML-CORE-V1.0
+              </p>
+            </div>
+            <p className="text-lg leading-relaxed">
+              Enter the participant access code provided by the testers to begin.
+            </p>
+            <div className="space-y-4">
+              <label className="block uppercase font-bold text-sm tracking-widest">
+                Access Code
+              </label>
+              <input
+                type="password"
+                value={accessCode}
+                onChange={(e) => setAccessCode(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAccessCode()}
+                className="w-full border-2 border-card-foreground p-4 text-xl bg-card text-card-foreground focus:outline-none focus:bg-card-foreground focus:text-card transition-colors placeholder:text-muted-foreground"
+                placeholder="ENTER CODE..."
+                autoFocus
+              />
+              {error && (
+                <p className="text-card-foreground font-bold border-2 border-card-foreground p-3 bg-accent text-accent-foreground">
+                  ⚠ {error}
+                </p>
+              )}
+              <button
+                onClick={handleAccessCode}
+                disabled={!accessCode.trim()}
+                className="w-full bg-card-foreground text-card p-6 text-xl font-bold hover:opacity-80 disabled:opacity-30 transition-opacity"
+              >
+                ENTER →
+              </button>
+              {/* Mod mode toggle */}
+              {!showModLogin && (
+                <button
+                  onClick={() => { setShowModLogin(true); setError(""); }}
+                  className="w-full text-muted-foreground text-xs font-mono hover:text-foreground transition-colors py-2"
+                >
+                  MODERATOR ACCESS
+                </button>
+              )}
+              {showModLogin && (
+                <div className="flex gap-2">
+                  <input
+                    type="password"
+                    value={modKeyInput}
+                    onChange={(e) => setModKeyInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleModLogin()}
+                    className="flex-1 border-2 border-card-foreground p-3 font-mono bg-card text-card-foreground focus:outline-none placeholder:text-muted-foreground"
+                    placeholder="ENTER MOD CODE..."
+                    autoFocus
+                  />
+                  <button
+                    onClick={handleModLogin}
+                    className="bg-card-foreground text-card px-6 font-bold hover:opacity-80 transition-opacity"
+                  >
+                    →
+                  </button>
+                  <button
+                    onClick={() => { setShowModLogin(false); setModKeyInput(""); setError(""); }}
+                    className="border-2 border-card-foreground px-4 font-bold hover:bg-card-foreground hover:text-card transition-colors"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* LANDING - Name entry (after access code or in mod mode) */}
+        {phase === "landing" && (accessGranted || modMode) && (
           <div className="space-y-8">
             <div className="border-b-4 border-card-foreground pb-4">
               <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tighter uppercase">
@@ -530,41 +607,6 @@ const Index = () => {
               >
                 {modMode ? "BROWSE TEST (MOD) →" : "BEGIN TEST →"}
               </button>
-
-              {/* Mod mode toggle */}
-              {!modMode && !showModLogin && (
-                <button
-                  onClick={() => { setShowModLogin(true); setError(""); }}
-                  className="w-full text-muted-foreground text-xs font-mono hover:text-foreground transition-colors py-2"
-                >
-                  MODERATOR ACCESS
-                </button>
-              )}
-              {showModLogin && !modMode && (
-                <div className="flex gap-2">
-                  <input
-                    type="password"
-                    value={modKeyInput}
-                    onChange={(e) => setModKeyInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleModLogin()}
-                    className="flex-1 border-2 border-card-foreground p-3 font-mono bg-card text-card-foreground focus:outline-none placeholder:text-muted-foreground"
-                    placeholder="ENTER MOD CODE..."
-                    autoFocus
-                  />
-                  <button
-                    onClick={handleModLogin}
-                    className="bg-card-foreground text-card px-6 font-bold hover:opacity-80 transition-opacity"
-                  >
-                    →
-                  </button>
-                  <button
-                    onClick={() => { setShowModLogin(false); setModKeyInput(""); setError(""); }}
-                    className="border-2 border-card-foreground px-4 font-bold hover:bg-card-foreground hover:text-card transition-colors"
-                  >
-                    ✕
-                  </button>
-                </div>
-              )}
               {modMode && (
                 <button
                   onClick={() => setModMode(false)}
