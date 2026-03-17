@@ -8,10 +8,10 @@ interface PatternDisplayProps {
 const PatternDisplay = ({ pattern }: PatternDisplayProps) => {
   const layoutClass =
     pattern.layout === "grid3x3"
-      ? "grid grid-cols-3 gap-4"
+      ? "grid grid-cols-3 gap-2 sm:gap-4"
       : pattern.layout === "grid2x2"
-      ? "grid grid-cols-2 gap-4"
-      : "flex gap-4 flex-wrap justify-center";
+      ? "grid grid-cols-2 gap-2 sm:gap-4"
+      : "flex gap-2 sm:gap-4 flex-wrap justify-center";
 
   return (
     <div className="flex flex-col items-center gap-6">
