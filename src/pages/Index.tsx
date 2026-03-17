@@ -463,8 +463,8 @@ const Index = () => {
   const data = getData();
 
   return (
-    <div className="min-h-screen text-foreground font-sans flex items-center justify-center p-4 bg-primary">
-      <div className="w-full max-w-3xl bg-card text-card-foreground p-8 md:p-12 border-2 border-foreground relative">
+    <div className="min-h-screen text-foreground font-sans flex items-center justify-center p-2 sm:p-4 bg-primary">
+      <div className="w-full max-w-3xl bg-card text-card-foreground p-4 sm:p-8 md:p-12 border-2 border-foreground relative">
 
         {/* Mod mode banner */}
         {modMode && (
