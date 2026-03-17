@@ -477,7 +477,7 @@ const Index = () => {
         {phase === "landing" && (
           <div className="space-y-8">
             <div className="border-b-4 border-card-foreground pb-4">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tighter uppercase">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tighter uppercase">
                 Short-Term Memory Lab
               </h1>
               <p className="mt-2 text-muted-foreground font-mono text-sm">
