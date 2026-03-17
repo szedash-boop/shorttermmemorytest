@@ -339,7 +339,17 @@ const Index = () => {
     }
   };
 
-  const handleStart = () => {
+  const handleAccessCode = () => {
+    if (accessCode.trim() === PARTICIPANT_CODE) {
+      setAccessGranted(true);
+      setError("");
+      setAccessCode("");
+    } else {
+      setError("Invalid access code.");
+    }
+  };
+
+  const handleStart = async () => {
     if (modMode) {
       setPhase("pre-pattern");
       return;
@@ -348,7 +358,8 @@ const Index = () => {
       setError("Please enter a nickname.");
       return;
     }
-    if (hasCompleted(nickname.trim())) {
+    const completed = await hasCompleted(nickname.trim());
+    if (completed) {
       setError("You have already completed the test.");
       return;
     }
