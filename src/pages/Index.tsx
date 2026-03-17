@@ -612,7 +612,7 @@ const Index = () => {
                     <h2 className="text-xl font-bold uppercase tracking-tighter mb-6">
                       MEMORIZE THIS SEQUENCE
                     </h2>
-                    <div className="text-6xl md:text-7xl font-mono font-bold tracking-[0.3em] tabular-nums">
+                    <div className="text-4xl sm:text-6xl md:text-7xl font-mono font-bold tracking-[0.3em] tabular-nums">
                       {data.digits[digitIndex]}
                     </div>
                   </div>
