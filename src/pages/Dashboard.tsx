@@ -12,7 +12,10 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (authenticated) {
-      const load = () => setResults(getResults());
+      const load = async () => {
+        const data = await getResults();
+        setResults(data);
+      };
       load();
       const interval = setInterval(load, 3000);
       return () => clearInterval(interval);
