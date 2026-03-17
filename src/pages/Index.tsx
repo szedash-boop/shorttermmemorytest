@@ -648,7 +648,7 @@ const Index = () => {
                     <h2 className="text-xl font-bold uppercase tracking-tighter mb-6 text-center">
                       MEMORIZE THESE WORDS
                     </h2>
-                    <div className="grid grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                       {data.words.map((w, i) => (
                         <div
                           key={i}
