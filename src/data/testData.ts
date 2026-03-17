@@ -166,4 +166,5 @@ export const POST_DATA: TestData = {
   ],
 };
 
+export const PARTICIPANT_CODE = "STML2026";
 export const MOD_CODE = "PSYCH2026";
