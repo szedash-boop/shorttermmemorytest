@@ -43,7 +43,7 @@ export async function saveResult(result: ParticipantResult) {
     nickname: result.nickname,
     timestamp: result.timestamp,
     completed: result.completed,
-    sections: result.sections as unknown as Record<string, unknown>,
+    sections: JSON.parse(JSON.stringify(result.sections)),
   };
 
   let error;
