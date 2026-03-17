@@ -685,7 +685,7 @@ const Index = () => {
             {/* BREAK */}
             {phase === "break" && (
               <div className="flex-1 flex flex-col items-center justify-center text-center space-y-8">
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tighter uppercase">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tighter uppercase">
                   MANDATORY BREAK
                 </h2>
                 <p className="text-lg max-w-md">
