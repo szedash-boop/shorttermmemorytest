@@ -14,7 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      participant_results: {
+        Row: {
+          completed: boolean
+          created_at: string
+          id: string
+          nickname: string
+          sections: Json
+          timestamp: string
+          updated_at: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          nickname: string
+          sections?: Json
+          timestamp?: string
+          updated_at?: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          id?: string
+          nickname?: string
+          sections?: Json
+          timestamp?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
