@@ -13,7 +13,7 @@ const PatternOptions = ({ pattern, onSelect, selectedIndex }: PatternOptionsProp
       <h2 className="text-xl font-bold uppercase tracking-tighter">
         SELECT YOUR ANSWER
       </h2>
-      <div className="flex gap-6 flex-wrap justify-center">
+      <div className="flex gap-3 sm:gap-6 flex-wrap justify-center">
         {pattern.options.map((option, i) => (
           <button
             key={i}

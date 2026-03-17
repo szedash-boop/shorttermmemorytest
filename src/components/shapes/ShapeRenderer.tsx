@@ -10,7 +10,7 @@ import type {
 
 // --- Grid 3x3 ---
 const Grid3x3Shape = ({ cells }: { cells: GridCells }) => (
-  <div className="grid grid-cols-3 w-24 h-24 border-2 border-foreground">
+  <div className="grid grid-cols-3 w-16 h-16 sm:w-24 sm:h-24 border-2 border-foreground">
     {cells.map((filled, i) => (
       <div
         key={i}
@@ -160,8 +160,8 @@ const MultiArrowCell = ({ arrows }: { arrows: MultiArrowItem[] }) => {
 
 // --- Question Mark ---
 const QuestionMark = ({ isGrid = false }: { isGrid?: boolean }) => (
-  <div className={`${isGrid ? "w-24 h-24" : "w-16 h-16"} flex items-center justify-center border-2 border-dashed border-muted-foreground`}>
-    <span className="text-4xl font-bold text-foreground">?</span>
+  <div className={`${isGrid ? "w-16 h-16 sm:w-24 sm:h-24" : "w-12 h-12 sm:w-16 sm:h-16"} flex items-center justify-center border-2 border-dashed border-muted-foreground`}>
+    <span className="text-2xl sm:text-4xl font-bold text-foreground">?</span>
   </div>
 );
 

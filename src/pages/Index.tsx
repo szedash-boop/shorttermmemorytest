@@ -463,8 +463,8 @@ const Index = () => {
   const data = getData();
 
   return (
-    <div className="min-h-screen text-foreground font-sans flex items-center justify-center p-4 bg-primary">
-      <div className="w-full max-w-3xl bg-card text-card-foreground p-8 md:p-12 border-2 border-foreground relative">
+    <div className="min-h-screen text-foreground font-sans flex items-center justify-center p-2 sm:p-4 bg-primary">
+      <div className="w-full max-w-3xl bg-card text-card-foreground p-4 sm:p-8 md:p-12 border-2 border-foreground relative">
 
         {/* Mod mode banner */}
         {modMode && (
@@ -477,7 +477,7 @@ const Index = () => {
         {phase === "landing" && (
           <div className="space-y-8">
             <div className="border-b-4 border-card-foreground pb-4">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tighter uppercase">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tighter uppercase">
                 Short-Term Memory Lab
               </h1>
               <p className="mt-2 text-muted-foreground font-mono text-sm">
@@ -612,7 +612,7 @@ const Index = () => {
                     <h2 className="text-xl font-bold uppercase tracking-tighter mb-6">
                       MEMORIZE THIS SEQUENCE
                     </h2>
-                    <div className="text-6xl md:text-7xl font-mono font-bold tracking-[0.3em] tabular-nums">
+                    <div className="text-4xl sm:text-6xl md:text-7xl font-mono font-bold tracking-[0.3em] tabular-nums">
                       {data.digits[digitIndex]}
                     </div>
                   </div>
@@ -648,7 +648,7 @@ const Index = () => {
                     <h2 className="text-xl font-bold uppercase tracking-tighter mb-6 text-center">
                       MEMORIZE THESE WORDS
                     </h2>
-                    <div className="grid grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                       {data.words.map((w, i) => (
                         <div
                           key={i}
@@ -685,7 +685,7 @@ const Index = () => {
             {/* BREAK */}
             {phase === "break" && (
               <div className="flex-1 flex flex-col items-center justify-center text-center space-y-8">
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tighter uppercase">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tighter uppercase">
                   MANDATORY BREAK
                 </h2>
                 <p className="text-lg max-w-md">
@@ -693,7 +693,7 @@ const Index = () => {
                   instructions from the testers. Thank you!
                 </p>
                 {!modMode && (
-                  <div className="text-7xl md:text-8xl font-mono font-bold tabular-nums">
+                  <div className="text-5xl sm:text-7xl md:text-8xl font-mono font-bold tabular-nums">
                     {Math.floor(timer / 60)}:
                     {(timer % 60).toString().padStart(2, "0")}
                   </div>
