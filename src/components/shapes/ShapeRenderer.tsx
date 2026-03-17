@@ -10,12 +10,12 @@ import type {
 
 // --- Grid 3x3 ---
 const Grid3x3Shape = ({ cells }: { cells: GridCells }) => (
-  <div className="grid grid-cols-3 w-16 h-16 sm:w-24 sm:h-24 border-2 border-foreground">
+  <div className="grid grid-cols-3 w-16 h-16 sm:w-24 sm:h-24 border-2 border-card-foreground">
     {cells.map((filled, i) => (
       <div
         key={i}
         className={`border border-muted-foreground ${
-          filled ? "bg-foreground" : "bg-card"
+          filled ? "bg-card-foreground" : "bg-card"
         }`}
       />
     ))}
