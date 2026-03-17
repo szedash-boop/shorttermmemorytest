@@ -32,17 +32,31 @@ export async function getResults(): Promise<ParticipantResult[]> {
 
 export async function saveResult(result: ParticipantResult) {
   // Try upsert: insert or update on nickname conflict
-  const { error } = await supabase
+  // Check if exists first
+  const { data: existing } = await supabase
     .from("participant_results")
-    .upsert(
-      {
-        nickname: result.nickname,
-        timestamp: result.timestamp,
-        completed: result.completed,
-        sections: result.sections as unknown as Record<string, unknown>,
-      },
-      { onConflict: "nickname" }
-    );
+    .select("id")
+    .ilike("nickname", result.nickname)
+    .limit(1);
+
+  const payload = {
+    nickname: result.nickname,
+    timestamp: result.timestamp,
+    completed: result.completed,
+    sections: result.sections as unknown as Record<string, unknown>,
+  };
+
+  let error;
+  if (existing && existing.length > 0) {
+    ({ error } = await supabase
+      .from("participant_results")
+      .update(payload)
+      .eq("id", existing[0].id));
+  } else {
+    ({ error } = await supabase
+      .from("participant_results")
+      .insert(payload));
+  }
 
   if (error) {
     console.error("Failed to save result:", error);
