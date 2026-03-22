@@ -63,6 +63,19 @@ export async function saveResult(result: ParticipantResult) {
   }
 }
 
+export async function deleteResult(nickname: string): Promise<boolean> {
+  const { error } = await supabase
+    .from("participant_results")
+    .delete()
+    .ilike("nickname", nickname);
+
+  if (error) {
+    console.error("Failed to delete result:", error);
+    return false;
+  }
+  return true;
+}
+
 export async function hasCompleted(nickname: string): Promise<boolean> {
   const { data, error } = await supabase
     .from("participant_results")

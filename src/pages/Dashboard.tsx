@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MOD_CODE, PRE_DATA, POST_DATA } from "@/data/testData";
-import { getResults, type ParticipantResult } from "@/lib/storage";
+import { getResults, deleteResult, type ParticipantResult } from "@/lib/storage";
 
 const Dashboard = () => {
   const [authenticated, setAuthenticated] = useState(false);
@@ -275,6 +275,17 @@ const Dashboard = () => {
                       <span className="text-2xl font-bold">
                         SCORE: {total}
                       </span>
+                      <button
+                        onClick={async () => {
+                          if (window.confirm(`Delete report for "${r.nickname}"?`)) {
+                            const ok = await deleteResult(r.nickname);
+                            if (ok) setResults((prev) => prev.filter((_, idx) => idx !== ri));
+                          }
+                        }}
+                        className="border-2 border-destructive text-destructive px-3 py-1 font-bold text-sm hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                      >
+                        ✕ DELETE
+                      </button>
                     </div>
                   </div>
 

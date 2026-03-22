@@ -1,0 +1,1 @@
+CREATE POLICY "Anyone can delete results" ON public.participant_results FOR DELETE TO public USING (true);

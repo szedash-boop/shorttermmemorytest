@@ -159,8 +159,8 @@ const MultiArrowCell = ({ arrows }: {arrows: MultiArrowItem[];}) => {
 };
 
 // --- Question Mark ---
-const QuestionMark = ({ isGrid = false }: {isGrid?: boolean;}) =>
-<div className={`${isGrid ? "w-16 h-16 sm:w-24 sm:h-24" : "w-12 h-12 sm:w-16 sm:h-16"} flex items-center justify-center border-2 border-dashed border-muted-foreground`}>
+const QuestionMark = ({ isGrid = false, isLarge = false }: {isGrid?: boolean; isLarge?: boolean;}) =>
+<div className={`${isGrid ? "w-16 h-16 sm:w-24 sm:h-24" : isLarge ? "w-20 h-20" : "w-12 h-12 sm:w-16 sm:h-16"} flex items-center justify-center border-2 border-dashed border-muted-foreground`}>
     <span className="text-2xl font-bold text-primary-foreground sm:text-6xl">?</span>
   </div>;
 
@@ -172,7 +172,7 @@ interface ShapeRendererProps {
 }
 
 const ShapeRenderer = ({ testId, item }: ShapeRendererProps) => {
-  if (item === null) return <QuestionMark isGrid={testId.includes("grid") && !testId.includes("arrow")} />;
+  if (item === null) return <QuestionMark isGrid={testId.includes("grid") && !testId.includes("arrow")} isLarge={testId.includes("arrow-grids") || testId.includes("petals")} />;
   if (testId.includes("grid") && !testId.includes("arrow"))
   return <Grid3x3Shape cells={item as GridCells} />;
   if (testId.includes("arrows") && !testId.includes("arrow-grids"))
