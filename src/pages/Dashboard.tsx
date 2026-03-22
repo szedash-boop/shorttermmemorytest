@@ -275,6 +275,17 @@ const Dashboard = () => {
                       <span className="text-2xl font-bold">
                         SCORE: {total}
                       </span>
+                      <button
+                        onClick={async () => {
+                          if (window.confirm(`Delete report for "${r.nickname}"?`)) {
+                            const ok = await deleteResult(r.nickname);
+                            if (ok) setResults((prev) => prev.filter((_, idx) => idx !== ri));
+                          }
+                        }}
+                        className="border-2 border-destructive text-destructive px-3 py-1 font-bold text-sm hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                      >
+                        ✕ DELETE
+                      </button>
                     </div>
                   </div>
 

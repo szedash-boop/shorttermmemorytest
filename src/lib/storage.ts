@@ -87,13 +87,3 @@ export async function hasCompleted(nickname: string): Promise<boolean> {
   if (error || !data) return false;
   return data.length > 0;
 }
-  const { data, error } = await supabase
-    .from("participant_results")
-    .select("completed")
-    .ilike("nickname", nickname)
-    .eq("completed", true)
-    .limit(1);
-
-  if (error || !data) return false;
-  return data.length > 0;
-}
