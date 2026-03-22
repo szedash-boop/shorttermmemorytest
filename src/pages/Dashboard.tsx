@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MOD_CODE, PRE_DATA, POST_DATA } from "@/data/testData";
-import { getResults, type ParticipantResult } from "@/lib/storage";
+import { getResults, deleteResult, type ParticipantResult } from "@/lib/storage";
 
 const Dashboard = () => {
   const [authenticated, setAuthenticated] = useState(false);
