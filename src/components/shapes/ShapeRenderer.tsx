@@ -139,7 +139,7 @@ const MultiArrowCell = ({ arrows }: {arrows: MultiArrowItem[];}) => {
     }
   };
   return (
-    <div className="w-20 h-20 border border-foreground flex items-end justify-center gap-1 bg-card p-2">
+    <div className="w-20 h-20 border border-card-foreground flex items-end justify-center gap-1 bg-card p-2">
       {arrows.map((arr, i) =>
       <svg
         key={i}
@@ -147,7 +147,7 @@ const MultiArrowCell = ({ arrows }: {arrows: MultiArrowItem[];}) => {
         fill="none"
         stroke="currentColor"
         strokeWidth="3"
-        className={`text-foreground origin-center ${
+        className={`text-card-foreground origin-center ${
         arr.size === "lg" ? "w-8 h-14" : "w-5 h-8"} ${
         getRotation(arr.dir)}`}>
         
