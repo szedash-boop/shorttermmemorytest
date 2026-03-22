@@ -63,7 +63,30 @@ export async function saveResult(result: ParticipantResult) {
   }
 }
 
+export async function deleteResult(nickname: string): Promise<boolean> {
+  const { error } = await supabase
+    .from("participant_results")
+    .delete()
+    .ilike("nickname", nickname);
+
+  if (error) {
+    console.error("Failed to delete result:", error);
+    return false;
+  }
+  return true;
+}
+
 export async function hasCompleted(nickname: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("participant_results")
+    .select("completed")
+    .ilike("nickname", nickname)
+    .eq("completed", true)
+    .limit(1);
+
+  if (error || !data) return false;
+  return data.length > 0;
+}
   const { data, error } = await supabase
     .from("participant_results")
     .select("completed")

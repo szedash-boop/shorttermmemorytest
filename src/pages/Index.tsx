@@ -727,12 +727,11 @@ const Index = () => {
                       autoFocus
                       placeholder="Type one word per line..."
                     />
-                    <button
-                      onClick={handleWordSubmit}
-                      className="w-full bg-card-foreground text-card p-4 font-bold hover:opacity-80 transition-opacity"
-                    >
-                      SUBMIT RECALL
-                    </button>
+                    {!modMode && (
+                      <p className="text-center text-sm text-muted-foreground font-mono mt-2">
+                        RECALL WILL BE SUBMITTED WHEN TIMER ENDS...
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
