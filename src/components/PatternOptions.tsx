@@ -27,7 +27,7 @@ const PatternOptions = ({ pattern, onSelect, selectedIndex }: PatternOptionsProp
                 : "border-foreground hover:bg-foreground hover:text-background"
             }`}
           >
-            <ShapeRenderer testId={pattern.id} item={option} />
+            <div className="text-card-foreground"><ShapeRenderer testId={pattern.id} item={option} /></div>
             <span className="font-bold text-lg">{pattern.optionLabels[i]}</span>
           </button>
         ))}
