@@ -161,7 +161,7 @@ const MultiArrowCell = ({ arrows }: {arrows: MultiArrowItem[];}) => {
 // --- Question Mark ---
 const QuestionMark = ({ isGrid = false, isLarge = false }: {isGrid?: boolean; isLarge?: boolean;}) =>
 <div className={`${isGrid ? "w-16 h-16 sm:w-24 sm:h-24" : isLarge ? "w-20 h-20" : "w-12 h-12 sm:w-16 sm:h-16"} flex items-center justify-center border-2 border-dashed border-muted-foreground`}>
-    <span className="text-2xl font-bold text-primary-foreground sm:text-6xl">?</span>
+    <span className="text-2xl font-bold text-muted-foreground sm:text-6xl">?</span>
   </div>;
 
 
