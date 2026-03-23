@@ -1,14 +1,32 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MOD_CODE, PRE_DATA, POST_DATA } from "@/data/testData";
+import { PRE_DATA, POST_DATA } from "@/data/testData";
 import { getResults, deleteResult, type ParticipantResult } from "@/lib/storage";
+import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
   const [authenticated, setAuthenticated] = useState(false);
-  const [code, setCode] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [results, setResults] = useState<ParticipantResult[]>([]);
   const navigate = useNavigate();
+
+  // Check existing session on mount
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setAuthenticated(!!session);
+      setLoading(false);
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setAuthenticated(!!session);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (authenticated) {
@@ -22,13 +40,20 @@ const Dashboard = () => {
     }
   }, [authenticated]);
 
-  const handleAuth = () => {
-    if (code === MOD_CODE) {
-      setAuthenticated(true);
-      setError("");
-    } else {
-      setError("Invalid mod code.");
+  const handleAuth = async () => {
+    setError("");
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+    if (authError) {
+      setError(authError.message);
     }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setAuthenticated(false);
   };
 
   const scorePatterns = (answers: number[], phase: "pre" | "post") => {
