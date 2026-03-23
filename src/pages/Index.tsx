@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { PRE_DATA, POST_DATA, MOD_CODE, PARTICIPANT_CODE } from "@/data/testData";
-import { saveResult, hasCompleted, type ParticipantResult } from "@/lib/storage";
+import { PRE_DATA, POST_DATA } from "@/data/testData";
+import { saveResult, hasCompleted, validateCode, type ParticipantResult } from "@/lib/storage";
 
 import ProgressBar from "@/components/ProgressBar";
 import Timer from "@/components/Timer";
