@@ -376,8 +376,10 @@ const Index = () => {
     setPhase("pre-pattern");
   };
 
-  const handleModLogin = () => {
-    if (modKeyInput.trim() === MOD_CODE) {
+  const handleModLogin = async () => {
+    setError("");
+    const valid = await validateCode(modKeyInput.trim(), "mod");
+    if (valid) {
       setModMode(true);
       setAccessGranted(true);
       setShowModLogin(false);
