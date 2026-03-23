@@ -339,8 +339,10 @@ const Index = () => {
     }
   };
 
-  const handleAccessCode = () => {
-    if (accessCode.trim() === PARTICIPANT_CODE) {
+  const handleAccessCode = async () => {
+    setError("");
+    const valid = await validateCode(accessCode.trim(), "participant");
+    if (valid) {
       setAccessGranted(true);
       setError("");
       setAccessCode("");
