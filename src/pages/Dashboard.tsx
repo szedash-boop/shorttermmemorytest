@@ -245,9 +245,8 @@ const Dashboard = () => {
           </button>
         </div>
       </div>
-    );
-    );
   }
+
 
   return (
     <div className="min-h-screen text-foreground font-sans p-4 md:p-8 bg-primary">
