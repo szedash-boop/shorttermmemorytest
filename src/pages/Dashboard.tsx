@@ -1,37 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { PRE_DATA, POST_DATA } from "@/data/testData";
-import { getResults, deleteResult, type ParticipantResult } from "@/lib/storage";
-import { supabase } from "@/integrations/supabase/client";
+import { getResults, deleteResult, validateCode, type ParticipantResult } from "@/lib/storage";
 
 const Dashboard = () => {
   const [authenticated, setAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [results, setResults] = useState<ParticipantResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const modCodeRef = useRef("");
   const navigate = useNavigate();
-
-  // Check existing session on mount
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setAuthenticated(!!session);
-      setLoading(false);
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setAuthenticated(!!session);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   useEffect(() => {
     if (authenticated) {
       const load = async () => {
-        const data = await getResults();
+        const data = await getResults(modCodeRef.current);
         setResults(data);
       };
       load();
@@ -42,18 +26,16 @@ const Dashboard = () => {
 
   const handleAuth = async () => {
     setError("");
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
-    if (authError) {
-      setError(authError.message);
+    setLoading(true);
+    const valid = await validateCode(code.trim(), "mod");
+    setLoading(false);
+    if (valid) {
+      modCodeRef.current = code.trim();
+      setAuthenticated(true);
+      setError("");
+    } else {
+      setError("Invalid mod code.");
     }
-  };
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setAuthenticated(false);
   };
 
   const scorePatterns = (answers: number[], phase: "pre" | "post") => {
