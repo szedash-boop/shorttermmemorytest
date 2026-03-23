@@ -129,13 +129,12 @@ export const POST_DATA: TestData = {
         null,
       ],
       options: [
-        { count: 5, isTopMinus: false },
         { count: 5, isTopMinus: true },
         { count: 4, isTopMinus: true },
         { count: 3, isTopMinus: false },
       ],
-      optionLabels: ["A", "B", "C", "D"],
-      correct: 1, // B
+      optionLabels: ["A", "B", "C"],
+      correct: 0, // A
     },
     // Test 6: Multi-arrow grid (2x2 layout)
     {
