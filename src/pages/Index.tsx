@@ -843,9 +843,24 @@ const Index = () => {
                 </button>
               </div>
             ) : (
-              <div className="pt-8 border-t border-muted text-sm font-mono text-muted-foreground">
-                SESSION_ID:{" "}
-                {Math.random().toString(36).substr(2, 9).toUpperCase()}
+              <div className="pt-8 border-t border-muted space-y-3">
+                <div className="text-sm font-mono text-muted-foreground">
+                  SESSION_ID:{" "}
+                  {Math.random().toString(36).substr(2, 9).toUpperCase()}
+                </div>
+                <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground/60">
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors underline underline-offset-2">
+                    Privacy Policy
+                  </a>
+                  <span>·</span>
+                  <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors underline underline-offset-2">
+                    Terms of Service
+                  </a>
+                  <span>·</span>
+                  <a href="mailto:katherina_fischeder@dlsu.edu.ph" className="hover:text-muted-foreground transition-colors underline underline-offset-2">
+                    Contact
+                  </a>
+                </div>
               </div>
             )}
           </div>
