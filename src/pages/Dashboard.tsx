@@ -272,6 +272,12 @@ const Dashboard = () => {
             >
               ← TEST
             </button>
+            <button
+              onClick={handleLogout}
+              className="border-2 border-destructive text-destructive px-4 py-2 font-bold hover:bg-destructive hover:text-destructive-foreground transition-colors text-sm"
+            >
+              LOGOUT
+            </button>
           </div>
         </div>
 
