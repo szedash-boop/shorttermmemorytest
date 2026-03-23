@@ -166,5 +166,4 @@ export const POST_DATA: TestData = {
   ],
 };
 
-export const PARTICIPANT_CODE = "STML2026";
-export const MOD_CODE = "PSYCH2026";
+// Access codes are validated server-side via edge functions

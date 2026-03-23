@@ -1,14 +1,32 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MOD_CODE, PRE_DATA, POST_DATA } from "@/data/testData";
+import { PRE_DATA, POST_DATA } from "@/data/testData";
 import { getResults, deleteResult, type ParticipantResult } from "@/lib/storage";
+import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
   const [authenticated, setAuthenticated] = useState(false);
-  const [code, setCode] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [results, setResults] = useState<ParticipantResult[]>([]);
   const navigate = useNavigate();
+
+  // Check existing session on mount
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setAuthenticated(!!session);
+      setLoading(false);
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setAuthenticated(!!session);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (authenticated) {
@@ -22,13 +40,20 @@ const Dashboard = () => {
     }
   }, [authenticated]);
 
-  const handleAuth = () => {
-    if (code === MOD_CODE) {
-      setAuthenticated(true);
-      setError("");
-    } else {
-      setError("Invalid mod code.");
+  const handleAuth = async () => {
+    setError("");
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+    if (authError) {
+      setError(authError.message);
     }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setAuthenticated(false);
   };
 
   const scorePatterns = (answers: number[], phase: "pre" | "post") => {
@@ -171,19 +196,35 @@ const Dashboard = () => {
     URL.revokeObjectURL(url);
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen text-foreground font-sans flex items-center justify-center p-4 bg-primary">
+        <p className="text-xl font-mono">Loading...</p>
+      </div>
+    );
+  }
+
   if (!authenticated) {
     return (
       <div className="min-h-screen text-foreground font-sans flex items-center justify-center p-4 bg-primary">
         <div className="w-full max-w-md bg-card text-card-foreground p-8 border-2 border-foreground space-y-6">
-          <h1 className="text-3xl font-bold tracking-tighter uppercase">TESTER ACCESS</h1>
-          <p className="text-muted-foreground text-sm">Enter the moderator code to access the dashboard.</p>
+          <h1 className="text-3xl font-bold tracking-tighter uppercase">MODERATOR LOGIN</h1>
+          <p className="text-muted-foreground text-sm">Sign in with your moderator account.</p>
           <input
-            type="password"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAuth()}
             className="w-full border-2 border-card-foreground p-4 text-xl bg-card text-card-foreground focus:outline-none"
-            placeholder="MOD CODE"
+            placeholder="EMAIL"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleAuth()}
+            className="w-full border-2 border-card-foreground p-4 text-xl bg-card text-card-foreground focus:outline-none"
+            placeholder="PASSWORD"
           />
           {error && (
             <p className="font-bold border-2 border-card-foreground p-3 bg-accent text-accent-foreground">
@@ -194,7 +235,7 @@ const Dashboard = () => {
             onClick={handleAuth}
             className="w-full bg-card-foreground text-card p-4 font-bold hover:opacity-80 transition-opacity"
           >
-            AUTHENTICATE
+            SIGN IN
           </button>
           <button
             onClick={() => navigate("/")}
@@ -206,6 +247,7 @@ const Dashboard = () => {
       </div>
     );
   }
+
 
   return (
     <div className="min-h-screen text-foreground font-sans p-4 md:p-8 bg-primary">
@@ -229,6 +271,12 @@ const Dashboard = () => {
               className="border-2 border-card-foreground px-4 py-2 font-bold hover:bg-card-foreground hover:text-card transition-colors text-sm"
             >
               ← TEST
+            </button>
+            <button
+              onClick={handleLogout}
+              className="border-2 border-destructive text-destructive px-4 py-2 font-bold hover:bg-destructive hover:text-destructive-foreground transition-colors text-sm"
+            >
+              LOGOUT
             </button>
           </div>
         </div>

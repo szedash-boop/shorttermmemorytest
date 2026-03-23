@@ -14,6 +14,18 @@ export interface ParticipantResult {
   };
 }
 
+export async function validateCode(code: string, type: "participant" | "mod"): Promise<boolean> {
+  try {
+    const { data, error } = await supabase.functions.invoke("validate-code", {
+      body: { code, type },
+    });
+    if (error) return false;
+    return data?.valid === true;
+  } catch {
+    return false;
+  }
+}
+
 export async function getResults(): Promise<ParticipantResult[]> {
   const { data, error } = await supabase
     .from("participant_results")
@@ -31,35 +43,15 @@ export async function getResults(): Promise<ParticipantResult[]> {
 }
 
 export async function saveResult(result: ParticipantResult) {
-  // Try upsert: insert or update on nickname conflict
-  // Check if exists first
-  const { data: existing } = await supabase
-    .from("participant_results")
-    .select("id")
-    .ilike("nickname", result.nickname)
-    .limit(1);
-
-  const payload = {
-    nickname: result.nickname,
-    timestamp: result.timestamp,
-    completed: result.completed,
-    sections: JSON.parse(JSON.stringify(result.sections)),
-  };
-
-  let error;
-  if (existing && existing.length > 0) {
-    ({ error } = await supabase
-      .from("participant_results")
-      .update(payload)
-      .eq("id", existing[0].id));
-  } else {
-    ({ error } = await supabase
-      .from("participant_results")
-      .insert(payload));
-  }
-
-  if (error) {
-    console.error("Failed to save result:", error);
+  try {
+    const { data, error } = await supabase.functions.invoke("participant-results", {
+      body: { action: "save", result },
+    });
+    if (error) {
+      console.error("Failed to save result:", error);
+    }
+  } catch (e) {
+    console.error("Failed to save result:", e);
   }
 }
 
@@ -77,13 +69,13 @@ export async function deleteResult(nickname: string): Promise<boolean> {
 }
 
 export async function hasCompleted(nickname: string): Promise<boolean> {
-  const { data, error } = await supabase
-    .from("participant_results")
-    .select("completed")
-    .ilike("nickname", nickname)
-    .eq("completed", true)
-    .limit(1);
-
-  if (error || !data) return false;
-  return data.length > 0;
+  try {
+    const { data, error } = await supabase.functions.invoke("participant-results", {
+      body: { action: "has-completed", nickname },
+    });
+    if (error) return false;
+    return data?.completed === true;
+  } catch {
+    return false;
+  }
 }

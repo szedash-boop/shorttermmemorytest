@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { PRE_DATA, POST_DATA, MOD_CODE, PARTICIPANT_CODE } from "@/data/testData";
-import { saveResult, hasCompleted, type ParticipantResult } from "@/lib/storage";
+import { PRE_DATA, POST_DATA } from "@/data/testData";
+import { saveResult, hasCompleted, validateCode, type ParticipantResult } from "@/lib/storage";
 
 import ProgressBar from "@/components/ProgressBar";
 import Timer from "@/components/Timer";
@@ -339,8 +339,10 @@ const Index = () => {
     }
   };
 
-  const handleAccessCode = () => {
-    if (accessCode.trim() === PARTICIPANT_CODE) {
+  const handleAccessCode = async () => {
+    setError("");
+    const valid = await validateCode(accessCode.trim(), "participant");
+    if (valid) {
       setAccessGranted(true);
       setError("");
       setAccessCode("");
@@ -374,8 +376,10 @@ const Index = () => {
     setPhase("pre-pattern");
   };
 
-  const handleModLogin = () => {
-    if (modKeyInput.trim() === MOD_CODE) {
+  const handleModLogin = async () => {
+    setError("");
+    const valid = await validateCode(modKeyInput.trim(), "mod");
+    if (valid) {
       setModMode(true);
       setAccessGranted(true);
       setShowModLogin(false);
