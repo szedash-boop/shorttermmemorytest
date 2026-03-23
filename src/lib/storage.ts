@@ -26,25 +26,26 @@ export async function validateCode(code: string, type: "participant" | "mod"): P
   }
 }
 
-export async function getResults(): Promise<ParticipantResult[]> {
-  const { data, error } = await supabase
-    .from("participant_results")
-    .select("*")
-    .order("created_at", { ascending: true });
-
-  if (error || !data) return [];
-
-  return data.map((row) => ({
-    nickname: row.nickname,
-    timestamp: row.timestamp,
-    completed: row.completed,
-    sections: row.sections as unknown as ParticipantResult["sections"],
-  }));
+export async function getResults(modCode: string): Promise<ParticipantResult[]> {
+  try {
+    const { data, error } = await supabase.functions.invoke("dashboard-data", {
+      body: { action: "list", modCode },
+    });
+    if (error || !data?.data) return [];
+    return data.data.map((row: any) => ({
+      nickname: row.nickname,
+      timestamp: row.timestamp,
+      completed: row.completed,
+      sections: row.sections as ParticipantResult["sections"],
+    }));
+  } catch {
+    return [];
+  }
 }
 
 export async function saveResult(result: ParticipantResult) {
   try {
-    const { data, error } = await supabase.functions.invoke("participant-results", {
+    const { error } = await supabase.functions.invoke("participant-results", {
       body: { action: "save", result },
     });
     if (error) {
@@ -55,17 +56,16 @@ export async function saveResult(result: ParticipantResult) {
   }
 }
 
-export async function deleteResult(nickname: string): Promise<boolean> {
-  const { error } = await supabase
-    .from("participant_results")
-    .delete()
-    .ilike("nickname", nickname);
-
-  if (error) {
-    console.error("Failed to delete result:", error);
+export async function deleteResult(nickname: string, modCode: string): Promise<boolean> {
+  try {
+    const { data, error } = await supabase.functions.invoke("dashboard-data", {
+      body: { action: "delete", modCode, nickname },
+    });
+    if (error) return false;
+    return data?.success === true;
+  } catch {
     return false;
   }
-  return true;
 }
 
 export async function hasCompleted(nickname: string): Promise<boolean> {

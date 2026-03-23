@@ -1,37 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { PRE_DATA, POST_DATA } from "@/data/testData";
-import { getResults, deleteResult, type ParticipantResult } from "@/lib/storage";
-import { supabase } from "@/integrations/supabase/client";
+import { getResults, deleteResult, validateCode, type ParticipantResult } from "@/lib/storage";
 
 const Dashboard = () => {
   const [authenticated, setAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [results, setResults] = useState<ParticipantResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const modCodeRef = useRef("");
   const navigate = useNavigate();
-
-  // Check existing session on mount
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setAuthenticated(!!session);
-      setLoading(false);
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setAuthenticated(!!session);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   useEffect(() => {
     if (authenticated) {
       const load = async () => {
-        const data = await getResults();
+        const data = await getResults(modCodeRef.current);
         setResults(data);
       };
       load();
@@ -42,18 +26,16 @@ const Dashboard = () => {
 
   const handleAuth = async () => {
     setError("");
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
-    if (authError) {
-      setError(authError.message);
+    setLoading(true);
+    const valid = await validateCode(code.trim(), "mod");
+    setLoading(false);
+    if (valid) {
+      modCodeRef.current = code.trim();
+      setAuthenticated(true);
+      setError("");
+    } else {
+      setError("Invalid mod code.");
     }
-  };
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setAuthenticated(false);
   };
 
   const scorePatterns = (answers: number[], phase: "pre" | "post") => {
@@ -196,35 +178,19 @@ const Dashboard = () => {
     URL.revokeObjectURL(url);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen text-foreground font-sans flex items-center justify-center p-4 bg-primary">
-        <p className="text-xl font-mono">Loading...</p>
-      </div>
-    );
-  }
-
   if (!authenticated) {
     return (
       <div className="min-h-screen text-foreground font-sans flex items-center justify-center p-4 bg-primary">
         <div className="w-full max-w-md bg-card text-card-foreground p-8 border-2 border-foreground space-y-6">
-          <h1 className="text-3xl font-bold tracking-tighter uppercase">MODERATOR LOGIN</h1>
-          <p className="text-muted-foreground text-sm">Sign in with your moderator account.</p>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAuth()}
-            className="w-full border-2 border-card-foreground p-4 text-xl bg-card text-card-foreground focus:outline-none"
-            placeholder="EMAIL"
-          />
+          <h1 className="text-3xl font-bold tracking-tighter uppercase">TESTER ACCESS</h1>
+          <p className="text-muted-foreground text-sm">Enter the moderator code to access the dashboard.</p>
           <input
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAuth()}
             className="w-full border-2 border-card-foreground p-4 text-xl bg-card text-card-foreground focus:outline-none"
-            placeholder="PASSWORD"
+            placeholder="MOD CODE"
           />
           {error && (
             <p className="font-bold border-2 border-card-foreground p-3 bg-accent text-accent-foreground">
@@ -233,9 +199,10 @@ const Dashboard = () => {
           )}
           <button
             onClick={handleAuth}
-            className="w-full bg-card-foreground text-card p-4 font-bold hover:opacity-80 transition-opacity"
+            disabled={loading}
+            className="w-full bg-card-foreground text-card p-4 font-bold hover:opacity-80 disabled:opacity-50 transition-opacity"
           >
-            SIGN IN
+            {loading ? "VERIFYING..." : "AUTHENTICATE"}
           </button>
           <button
             onClick={() => navigate("/")}
@@ -273,7 +240,7 @@ const Dashboard = () => {
               ← TEST
             </button>
             <button
-              onClick={handleLogout}
+              onClick={() => { setAuthenticated(false); setCode(""); modCodeRef.current = ""; }}
               className="border-2 border-destructive text-destructive px-4 py-2 font-bold hover:bg-destructive hover:text-destructive-foreground transition-colors text-sm"
             >
               LOGOUT
@@ -326,7 +293,7 @@ const Dashboard = () => {
                       <button
                         onClick={async () => {
                           if (window.confirm(`Delete report for "${r.nickname}"?`)) {
-                            const ok = await deleteResult(r.nickname);
+                            const ok = await deleteResult(r.nickname, modCodeRef.current);
                             if (ok) setResults((prev) => prev.filter((_, idx) => idx !== ri));
                           }
                         }}
