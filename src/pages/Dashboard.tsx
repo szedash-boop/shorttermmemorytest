@@ -293,7 +293,7 @@ const Dashboard = () => {
                       <button
                         onClick={async () => {
                           if (window.confirm(`Delete report for "${r.nickname}"?`)) {
-                            const ok = await deleteResult(r.nickname);
+                            const ok = await deleteResult(r.nickname, modCodeRef.current);
                             if (ok) setResults((prev) => prev.filter((_, idx) => idx !== ri));
                           }
                         }}
