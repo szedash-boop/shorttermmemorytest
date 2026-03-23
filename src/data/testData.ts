@@ -60,8 +60,8 @@ export const PRE_DATA: TestData = {
       id: "test-2-arrows",
       layout: "sequence",
       pattern: ["down", "left", "up", "right", "down", null],
-      options: ["right", "up", "down", "left", "left"],
-      optionLabels: ["A", "B", "C", "D", "E"],
+      options: ["right", "up", "down", "left"],
+      optionLabels: ["A", "B", "C", "D"],
       correct: 0, // A
     },
     // Test 5: Split triangles sequence
