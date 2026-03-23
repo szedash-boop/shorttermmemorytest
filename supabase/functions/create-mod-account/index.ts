@@ -12,16 +12,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { email, password, adminSecret } = await req.json();
-
-    // Validate using the validate-code pattern
-    const modCode = Deno.env.get("MOD_CODE");
-    if (!adminSecret || adminSecret !== modCode) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    const { email, password } = await req.json();
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
