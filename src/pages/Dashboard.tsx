@@ -335,7 +335,13 @@ const Dashboard = () => {
               onClick={exportCSV}
               className="border-2 border-card-foreground px-4 py-2 font-bold hover:bg-card-foreground hover:text-card transition-colors text-sm flex items-center gap-2"
             >
-              ↓ EXPORT CSV
+              ↓ CSV
+            </button>
+            <button
+              onClick={exportPDF}
+              className="border-2 border-card-foreground px-4 py-2 font-bold hover:bg-card-foreground hover:text-card transition-colors text-sm flex items-center gap-2"
+            >
+              ↓ PDF
             </button>
             <button
               onClick={() => navigate("/")}
