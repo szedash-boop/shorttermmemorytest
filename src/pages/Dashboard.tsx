@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { PRE_DATA, POST_DATA } from "@/data/testData";
-import { getResults, deleteResult, validateCode, type ParticipantResult } from "@/lib/storage";
+import { getResults, deleteResult, markComplete, validateCode, type ParticipantResult } from "@/lib/storage";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
