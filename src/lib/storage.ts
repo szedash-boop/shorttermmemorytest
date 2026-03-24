@@ -68,6 +68,18 @@ export async function deleteResult(nickname: string, modCode: string): Promise<b
   }
 }
 
+export async function markComplete(nickname: string, modCode: string): Promise<boolean> {
+  try {
+    const { data, error } = await supabase.functions.invoke("dashboard-data", {
+      body: { action: "mark-complete", modCode, nickname },
+    });
+    if (error) return false;
+    return data?.success === true;
+  } catch {
+    return false;
+  }
+}
+
 export async function hasCompleted(nickname: string): Promise<boolean> {
   try {
     const { data, error } = await supabase.functions.invoke("participant-results", {

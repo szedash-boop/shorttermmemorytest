@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { PRE_DATA, POST_DATA } from "@/data/testData";
-import { getResults, deleteResult, validateCode, type ParticipantResult } from "@/lib/storage";
+import { getResults, deleteResult, markComplete, validateCode, type ParticipantResult } from "@/lib/storage";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -400,6 +400,19 @@ const Dashboard = () => {
                       <span className="text-2xl font-bold">
                         SCORE: {total}
                       </span>
+                      {!r.completed && (
+                        <button
+                          onClick={async () => {
+                            if (window.confirm(`Mark "${r.nickname}" as completed?`)) {
+                              const ok = await markComplete(r.nickname, modCodeRef.current);
+                              if (ok) setResults((prev) => prev.map((p, idx) => idx === ri ? { ...p, completed: true } : p));
+                            }
+                          }}
+                          className="border-2 border-card-foreground px-3 py-1 font-bold text-sm hover:bg-card-foreground hover:text-card transition-colors"
+                        >
+                          ✓ COMPLETE
+                        </button>
+                      )}
                       <button
                         onClick={async () => {
                           if (window.confirm(`Delete report for "${r.nickname}"?`)) {
