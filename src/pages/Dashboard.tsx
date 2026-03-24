@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { PRE_DATA, POST_DATA } from "@/data/testData";
 import { getResults, deleteResult, validateCode, type ParticipantResult } from "@/lib/storage";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const Dashboard = () => {
   const [authenticated, setAuthenticated] = useState(false);
@@ -178,6 +180,108 @@ const Dashboard = () => {
     URL.revokeObjectURL(url);
   };
 
+  const exportPDF = () => {
+    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+    const dateStr = new Date().toISOString().slice(0, 10);
+    doc.setFontSize(16);
+    doc.text("STML Lab Results", 14, 15);
+    doc.setFontSize(9);
+    doc.text(`Exported: ${dateStr} | Participants: ${results.length}`, 14, 22);
+
+    const tableHead = [
+      ["Nickname", "Status", "Time", "Pre Pat", "Pre Dig", "Pre Word", "Post Pat", "Post Dig", "Post Word", "Total"],
+    ];
+    const tableBody = results.map((r) => {
+      const pp = scorePatterns(r.sections.prePatterns.answers, "pre");
+      const pd = scoreDigitSpan(r.sections.preDigits.answers, "pre");
+      const pw = scoreWords(r.sections.preWords.words, "pre");
+      const opp = scorePatterns(r.sections.postPatterns.answers, "post");
+      const opd = scoreDigitSpan(r.sections.postDigits.answers, "post");
+      const opw = scoreWords(r.sections.postWords.words, "post");
+      return [
+        r.nickname,
+        r.completed ? "Completed" : "In Progress",
+        formatTime(getTotalTime(r)),
+        `${pp}/3`,
+        `Span ${pd}`,
+        `${pw}/16`,
+        `${opp}/3`,
+        `Span ${opd}`,
+        `${opw}/16`,
+        String(pp + pd + pw + opp + opd + opw),
+      ];
+    });
+
+    autoTable(doc, {
+      startY: 28,
+      head: tableHead,
+      body: tableBody,
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [30, 30, 30], textColor: 255, fontStyle: "bold" },
+    });
+
+    // Detail pages per participant
+    results.forEach((r) => {
+      doc.addPage();
+      const pp = scorePatterns(r.sections.prePatterns.answers, "pre");
+      const pd = scoreDigitSpan(r.sections.preDigits.answers, "pre");
+      const pw = scoreWords(r.sections.preWords.words, "pre");
+      const opp = scorePatterns(r.sections.postPatterns.answers, "post");
+      const opd = scoreDigitSpan(r.sections.postDigits.answers, "post");
+      const opw = scoreWords(r.sections.postWords.words, "post");
+      const total = pp + pd + pw + opp + opd + opw;
+
+      doc.setFontSize(14);
+      doc.text(`${r.nickname}`, 14, 15);
+      doc.setFontSize(9);
+      doc.text(`${r.completed ? "Completed" : "In Progress"} | Time: ${formatTime(getTotalTime(r))} | Score: ${total}`, 14, 22);
+
+      // Pattern details
+      const prePatDetail = patternCorrectMap(r.sections.prePatterns.answers, "pre");
+      const postPatDetail = patternCorrectMap(r.sections.postPatterns.answers, "post");
+      const patBody = [
+        ...prePatDetail.map((d, i) => ["PRE", String(i + 1), d.selected, d.correct, d.isCorrect ? "Y" : "N"]),
+        ...postPatDetail.map((d, i) => ["POST", String(i + 1), d.selected, d.correct, d.isCorrect ? "Y" : "N"]),
+      ];
+      autoTable(doc, {
+        startY: 28,
+        head: [["Phase", "Item", "Selected", "Correct", "Result"]],
+        body: patBody,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [30, 30, 30], textColor: 255 },
+        margin: { left: 14 },
+        tableWidth: 100,
+      });
+
+      // Digit details
+      const preDigDetail = digitDetailMap(r.sections.preDigits.answers, "pre");
+      const postDigDetail = digitDetailMap(r.sections.postDigits.answers, "post");
+      const digBody = [
+        ...preDigDetail.map((d) => ["PRE", String(d.length), d.typed, d.correct, d.isCorrect ? "Y" : "N"]),
+        ...postDigDetail.map((d) => ["POST", String(d.length), d.typed, d.correct, d.isCorrect ? "Y" : "N"]),
+      ];
+      autoTable(doc, {
+        startY: 28,
+        head: [["Phase", "Len", "Typed", "Correct", "Result"]],
+        body: digBody,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [30, 30, 30], textColor: 255 },
+        margin: { left: 130 },
+        tableWidth: 100,
+      });
+
+      // Word recall
+      const preWordDetail = wordDetailMap(r.sections.preWords.words, "pre");
+      const postWordDetail = wordDetailMap(r.sections.postWords.words, "post");
+      const lastTableY = (doc as any).lastAutoTable?.finalY || 120;
+      doc.setFontSize(9);
+      doc.text(`PRE Words (${pw}/16): Matched: ${preWordDetail.matched.join(", ") || "none"} | Missed: ${preWordDetail.missed.join(", ") || "none"}`, 14, lastTableY + 10);
+      doc.text(`POST Words (${opw}/16): Matched: ${postWordDetail.matched.join(", ") || "none"} | Missed: ${postWordDetail.missed.join(", ") || "none"}`, 14, lastTableY + 18);
+    });
+
+    doc.save(`stml_results_${dateStr}.pdf`);
+  };
+
   if (!authenticated) {
     return (
       <div className="min-h-screen text-foreground font-sans flex items-center justify-center p-4 bg-primary">
@@ -231,7 +335,13 @@ const Dashboard = () => {
               onClick={exportCSV}
               className="border-2 border-card-foreground px-4 py-2 font-bold hover:bg-card-foreground hover:text-card transition-colors text-sm flex items-center gap-2"
             >
-              ↓ EXPORT CSV
+              ↓ CSV
+            </button>
+            <button
+              onClick={exportPDF}
+              className="border-2 border-card-foreground px-4 py-2 font-bold hover:bg-card-foreground hover:text-card transition-colors text-sm flex items-center gap-2"
+            >
+              ↓ PDF
             </button>
             <button
               onClick={() => navigate("/")}
