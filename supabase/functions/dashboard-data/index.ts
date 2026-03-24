@@ -73,6 +73,32 @@ Deno.serve(async (req) => {
       );
     }
 
+    if (action === "mark-complete") {
+      if (!nickname) {
+        return new Response(
+          JSON.stringify({ error: "Missing nickname" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const { error } = await supabase
+        .from("participant_results")
+        .update({ completed: true })
+        .ilike("nickname", nickname);
+
+      if (error) {
+        return new Response(
+          JSON.stringify({ error: error.message }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({ success: true }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     return new Response(
       JSON.stringify({ error: "Invalid action" }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
