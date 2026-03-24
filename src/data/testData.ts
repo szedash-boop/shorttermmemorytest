@@ -62,7 +62,7 @@ export const PRE_DATA: TestData = {
       pattern: ["down", "left", "up", "right", "down", null],
       options: ["right", "up", "down", "left"],
       optionLabels: ["A", "B", "C", "D"],
-      correct: 0, // A
+      correct: 3, // D
     },
     // Test 5: Split triangles sequence
     {
