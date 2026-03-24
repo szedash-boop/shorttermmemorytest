@@ -82,7 +82,7 @@ export const PRE_DATA: TestData = {
         { invert: false, leftFilled: false, rightFilled: false },
       ],
       optionLabels: ["A", "B", "C", "D"],
-      correct: 3, // D
+      correct: 1, // B
     },
   ],
   digits: ["482", "9173", "52084", "391627", "8402935", "17395826", "402851739", "5820491736"],
